@@ -15,8 +15,11 @@ struct SampleEngineParams
     float panR{1.f};            // right channel gain (constant-power)
     float startNorm{0.f};       // 0–1 normalized start position
     float endNorm{1.f};         // 0–1 normalized end position
+    float fadeInMs{0.f};        // fade-in duration in milliseconds
+    float fadeOutMs{0.f};       // fade-out duration in milliseconds
     bool  loop{false};
     bool  oneShot{true};
+    bool  reverse{false};       // play sample backwards within start/end bounds
 };
 
 // Monophonic MIDI-triggered sample playback engine.

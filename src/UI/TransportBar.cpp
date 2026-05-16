@@ -5,12 +5,12 @@ namespace AIT {
 
 TransportBar::TransportBar()
 {
-    m_playBtn.setButtonText("Play");
+    m_playBtn.setButtonText(juce::String::fromUTF8("\xe2\x96\xb6 Play"));
     m_playBtn.setTooltip("Preview the loaded sample (sends C3 note-on)");
     m_playBtn.onClick = [this] { if (onPlay) onPlay(); };
     addAndMakeVisible(m_playBtn);
 
-    m_stopBtn.setButtonText("Stop");
+    m_stopBtn.setButtonText(juce::String::fromUTF8("\xe2\x96\xa0 Stop"));
     m_stopBtn.setTooltip("Stop preview playback");
     m_stopBtn.onClick = [this] { if (onStop) onStop(); };
     addAndMakeVisible(m_stopBtn);

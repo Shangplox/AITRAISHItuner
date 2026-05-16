@@ -36,7 +36,7 @@ AITRAISHItunerEditor::AITRAISHItunerEditor(AITRAISHItunerProcessor& p)
     m_transport.onPlay = [this] { m_processor.triggerPreviewNote(); };
     m_transport.onStop = [this] { m_processor.stopPreviewNote(); };
 
-    setSize(820, 550);
+    setSize(820, 620);
     setResizable(true, true);
     setResizeLimits(640, 400, 1600, 960);
 }
@@ -49,6 +49,12 @@ AITRAISHItunerEditor::~AITRAISHItunerEditor()
 void AITRAISHItunerEditor::paint(juce::Graphics& g)
 {
     g.fillAll(colour(BACKGROUND_DARK));
+
+    // Subtle "AITRAISHI" watermark — visible but not distracting.
+    g.setColour(colour(TEXT_PRIMARY).withAlpha(0.04f));
+    g.setFont(juce::Font(72.f, juce::Font::bold));
+    g.drawText("AITRAISHI", getLocalBounds().withTrimmedTop(60),
+               juce::Justification::centred, false);
 }
 
 void AITRAISHItunerEditor::resized()

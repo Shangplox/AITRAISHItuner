@@ -73,6 +73,9 @@ private:
     std::atomic<float>* m_pSamplePan     {nullptr};
     std::atomic<float>* m_pSampleLoop    {nullptr};
     std::atomic<float>* m_pSampleOneShot {nullptr};
+    std::atomic<float>* m_pSampleReverse {nullptr};
+    std::atomic<float>* m_pSampleFadeIn  {nullptr};
+    std::atomic<float>* m_pSampleFadeOut {nullptr};
     std::atomic<float>* m_pDistDrive     {nullptr};
     std::atomic<float>* m_pDistTone      {nullptr};
     std::atomic<float>* m_pDistMix       {nullptr};
@@ -88,6 +91,8 @@ private:
     AIT::ParamSmoother<float> m_startSmooth;
     AIT::ParamSmoother<float> m_endSmooth;
     AIT::ParamSmoother<float> m_panSmooth;
+    AIT::ParamSmoother<float> m_fadeInSmooth;
+    AIT::ParamSmoother<float> m_fadeOutSmooth;
     AIT::ParamSmoother<float> m_driveSmooth;
     AIT::ParamSmoother<float> m_toneSmooth;
     AIT::ParamSmoother<float> m_distMixSmooth;

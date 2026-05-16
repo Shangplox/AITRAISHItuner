@@ -82,6 +82,8 @@ void AITRAISHItunerProcessor::processBlock(juce::AudioBuffer<float>& buffer,
     m_startSmooth.setTargetValue(m_pSampleStart->load());
     m_endSmooth.setTargetValue(m_pSampleEnd->load());
     m_panSmooth.setTargetValue(m_pSamplePan->load());
+    m_fadeInSmooth.setTargetValue(m_pSampleFadeIn->load());
+    m_fadeOutSmooth.setTargetValue(m_pSampleFadeOut->load());
     m_driveSmooth.setTargetValue(m_pDistDrive->load());
     m_toneSmooth.setTargetValue(m_pDistTone->load());
     m_distMixSmooth.setTargetValue(m_pDistMix->load());
@@ -95,8 +97,11 @@ void AITRAISHItunerProcessor::processBlock(juce::AudioBuffer<float>& buffer,
     const float start      = m_startSmooth.getNextValue();
     const float end        = m_endSmooth.getNextValue();
     const float pan        = m_panSmooth.getNextValue();
+    const float fadeIn     = m_fadeInSmooth.getNextValue();
+    const float fadeOut    = m_fadeOutSmooth.getNextValue();
     const bool  loop       = *m_pSampleLoop > 0.5f;
     const bool  oneShot    = *m_pSampleOneShot > 0.5f;
+    const bool  reverse    = *m_pSampleReverse > 0.5f;
 
     const auto [panL, panR] = AIT::constantPowerPan(pan);
 
@@ -107,8 +112,11 @@ void AITRAISHItunerProcessor::processBlock(juce::AudioBuffer<float>& buffer,
     sampleParams.panR           = panR;
     sampleParams.startNorm      = start;
     sampleParams.endNorm        = end;
+    sampleParams.fadeInMs        = fadeIn;
+    sampleParams.fadeOutMs       = fadeOut;
     sampleParams.loop           = loop;
     sampleParams.oneShot        = oneShot;
+    sampleParams.reverse        = reverse;
 
     // ── Sample engine: MIDI → audio ──────────────────────────────────────────
     // In one-shot mode, we must NOT send note-off to the engine.
@@ -213,6 +221,9 @@ void AITRAISHItunerProcessor::cacheParameterPointers()
     m_pSamplePan      = m_apvts.getRawParameterValue(P::SAMPLE_PAN);
     m_pSampleLoop     = m_apvts.getRawParameterValue(P::SAMPLE_LOOP);
     m_pSampleOneShot  = m_apvts.getRawParameterValue(P::SAMPLE_ONESHOT);
+    m_pSampleReverse  = m_apvts.getRawParameterValue(P::SAMPLE_REVERSE);
+    m_pSampleFadeIn   = m_apvts.getRawParameterValue(P::SAMPLE_FADE_IN);
+    m_pSampleFadeOut  = m_apvts.getRawParameterValue(P::SAMPLE_FADE_OUT);
     m_pDistDrive      = m_apvts.getRawParameterValue(P::DIST_DRIVE);
     m_pDistTone       = m_apvts.getRawParameterValue(P::DIST_TONE);
     m_pDistMix        = m_apvts.getRawParameterValue(P::DIST_MIX);
@@ -239,6 +250,8 @@ void AITRAISHItunerProcessor::initSmoothers(double sampleRate)
     init(m_startSmooth,     fiveMs,   m_pSampleStart    ? m_pSampleStart->load()    : 0.f);
     init(m_endSmooth,       fiveMs,   m_pSampleEnd      ? m_pSampleEnd->load()      : 1.f);
     init(m_panSmooth,       tenMs,    m_pSamplePan      ? m_pSamplePan->load()      : 0.f);
+    init(m_fadeInSmooth,    fiveMs,   m_pSampleFadeIn   ? m_pSampleFadeIn->load()   : 0.f);
+    init(m_fadeOutSmooth,   fiveMs,   m_pSampleFadeOut  ? m_pSampleFadeOut->load()  : 0.f);
     init(m_driveSmooth,     twentyMs, m_pDistDrive      ? m_pDistDrive->load()      : 0.f);
     init(m_toneSmooth,      twentyMs, m_pDistTone       ? m_pDistTone->load()       : 0.5f);
     init(m_distMixSmooth,   tenMs,    m_pDistMix        ? m_pDistMix->load()        : 1.f);

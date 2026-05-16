@@ -121,6 +121,8 @@ void SampleEngine::renderVoice(juce::AudioBuffer<float>& output,
     if (startPos >= endPos)
         return;
 
+    const int regionLength = endPos - startPos;
+
     // Resampling ratio: combines MIDI pitch offset + manual pitch param + sample rate difference.
     const double midiSemitones   = static_cast<double>(m_currentMidiNote - ROOT_MIDI_NOTE);
     const double totalSemitones  = midiSemitones + static_cast<double>(params.pitchSemitones);
@@ -128,9 +130,24 @@ void SampleEngine::renderVoice(juce::AudioBuffer<float>& output,
     const double rateRatio       = (m_hostSampleRate > 0.0) ? (sourceRate / m_hostSampleRate) : 1.0;
     const double playbackRatio   = pitchRatio * rateRatio;
 
-    // Set play head to start bounds on first use.
-    if (m_playPos < startPos)
-        m_playPos = startPos;
+    // Playback direction: positive = forward, negative = reverse.
+    const double direction = params.reverse ? -playbackRatio : playbackRatio;
+
+    // Set play head to correct start on first use.
+    if (params.reverse)
+    {
+        if (m_playPos <= startPos || m_playPos > endPos)
+            m_playPos = endPos - 1;
+    }
+    else
+    {
+        if (m_playPos < startPos)
+            m_playPos = startPos;
+    }
+
+    // Fade envelope lengths in source samples.
+    const double fadeInSamples  = (params.fadeInMs  > 0.f) ? (params.fadeInMs  * 0.001 * sourceRate) : 0.0;
+    const double fadeOutSamples = (params.fadeOutMs > 0.f) ? (params.fadeOutMs * 0.001 * sourceRate) : 0.0;
 
     auto* outL = output.getWritePointer(0, startSample);
     auto* outR = output.getNumChannels() > 1 ? output.getWritePointer(1, startSample) : nullptr;
@@ -151,12 +168,16 @@ void SampleEngine::renderVoice(juce::AudioBuffer<float>& output,
         const int   posInt = static_cast<int>(m_playPos);
         const float frac   = static_cast<float>(m_playPos - posInt);
 
-        // Guard against reading past the end.
-        if (posInt + 1 > endPos)
+        // Bounds check: are we outside the playback region?
+        const bool outOfBounds = params.reverse
+            ? (posInt < startPos)
+            : (posInt + 1 > endPos);
+
+        if (outOfBounds)
         {
             if (params.loop)
             {
-                m_playPos = startPos;
+                m_playPos = params.reverse ? (endPos - 1) : startPos;
                 continue;
             }
             m_isPlaying = false;
@@ -165,26 +186,53 @@ void SampleEngine::renderVoice(juce::AudioBuffer<float>& output,
             continue;
         }
 
+        // Guard interpolation read: clamp to valid range.
+        const int interpNext = params.reverse
+            ? std::max(startPos, posInt - 1)
+            : std::min(endPos, posInt + 1);
+
         // Linear interpolation for both channels.
         auto lerp = [&](int ch) -> float {
             const int useCh = std::min(ch, srcNumChannels - 1);
             const auto* data = src.getReadPointer(useCh);
-            return data[posInt] * (1.f - frac) + data[posInt + 1] * frac;
+            return data[posInt] * (1.f - frac) + data[interpNext] * frac;
         };
 
-        const float sampleL = lerp(0) * params.gainLinear * m_velocity * params.panL;
-        const float sampleR = lerp(srcNumChannels > 1 ? 1 : 0) * params.gainLinear * m_velocity * params.panR;
+        // Compute fade envelope (0.0 to 1.0).
+        float fadeGain = 1.f;
+
+        // Distance from start of playback region (in source samples from start).
+        const double distFromStart = params.reverse
+            ? static_cast<double>(endPos - 1 - posInt)
+            : static_cast<double>(posInt - startPos);
+
+        // Distance from end of playback region.
+        const double distFromEnd = static_cast<double>(regionLength) - distFromStart;
+
+        if (fadeInSamples > 0.0 && distFromStart < fadeInSamples)
+            fadeGain *= static_cast<float>(distFromStart / fadeInSamples);
+
+        if (fadeOutSamples > 0.0 && distFromEnd < fadeOutSamples)
+            fadeGain *= static_cast<float>(distFromEnd / fadeOutSamples);
+
+        const float totalGain = params.gainLinear * m_velocity * fadeGain;
+        const float sampleL = lerp(0) * totalGain * params.panL;
+        const float sampleR = lerp(srcNumChannels > 1 ? 1 : 0) * totalGain * params.panR;
 
         outL[i] = sampleL;
         if (outR) outR[i] = sampleR;
 
-        m_playPos += playbackRatio;
+        m_playPos += direction;
 
-        // Loop / one-shot boundary handling.
-        if (m_playPos >= endPos)
+        // Boundary handling after advancing.
+        const bool hitBound = params.reverse
+            ? (m_playPos < startPos)
+            : (m_playPos >= endPos);
+
+        if (hitBound)
         {
             if (params.loop)
-                m_playPos = startPos;
+                m_playPos = params.reverse ? (endPos - 1) : startPos;
             else
                 m_isPlaying = false;
         }

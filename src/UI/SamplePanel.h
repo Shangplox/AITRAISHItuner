@@ -4,7 +4,7 @@
 
 namespace AIT {
 
-// Sample Engine control panel: gain, pitch, pan, start, end, loop, one-shot.
+// Sample Engine control panel: gain, pitch, pan, start, end, fade in/out, loop, one-shot, reverse.
 class SamplePanel : public juce::Component
 {
 public:
@@ -19,9 +19,12 @@ private:
     KnobControl m_pan;
     KnobControl m_start;
     KnobControl m_end;
+    KnobControl m_fadeIn;
+    KnobControl m_fadeOut;
 
     juce::ToggleButton m_loopBtn;
     juce::ToggleButton m_oneShotBtn;
+    juce::ToggleButton m_reverseBtn;
 
     // APVTS attachments keep sliders/buttons in sync with parameter state.
     using SliderAttach = juce::AudioProcessorValueTreeState::SliderAttachment;

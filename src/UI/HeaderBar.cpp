@@ -22,12 +22,12 @@ HeaderBar::HeaderBar(Presets& presets, const juce::String& /*currentSamplePath*/
     };
     addAndMakeVisible(m_presetBox);
 
-    m_saveBtn.setButtonText("Save");
+    m_saveBtn.setButtonText(juce::String::fromUTF8("\xf0\x9f\x92\xbe Save"));
     m_saveBtn.setTooltip("Save current settings as a user preset");
     m_saveBtn.onClick = [this] { if (onPresetSave) onPresetSave(); };
     addAndMakeVisible(m_saveBtn);
 
-    m_loadBtn.setButtonText("Open");
+    m_loadBtn.setButtonText(juce::String::fromUTF8("\xf0\x9f\x93\x82 Open"));
     m_loadBtn.setTooltip("Open a WAV file for sample playback");
     m_loadBtn.onClick = [this] {
         m_fileChooser = std::make_unique<juce::FileChooser>(
@@ -60,9 +60,9 @@ void HeaderBar::resized()
 {
     auto area = getLocalBounds().reduced(Theme::PADDING, 0);
     m_pluginNameLabel.setBounds(area.removeFromLeft(160));
-    m_loadBtn.setBounds(area.removeFromRight(50));
+    m_loadBtn.setBounds(area.removeFromRight(70));
     area.removeFromRight(4);
-    m_saveBtn.setBounds(area.removeFromRight(50));
+    m_saveBtn.setBounds(area.removeFromRight(70));
     area.removeFromRight(8);
     m_presetBox.setBounds(area.withSizeKeepingCentre(std::min(area.getWidth(), 200), 22));
 }
