@@ -1,0 +1,48 @@
+# Build output
+build/
+out/
+*.vst3
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.opendb
+
+# CMake cache
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+CTestTestfile.cmake
+_deps/
+
+# JUCE generated
+JuceLibraryCode/
+
+# User presets (factory presets are version-controlled in assets/presets/factory/)
+assets/presets/user/
+
+# Windows
+Thumbs.db
+Desktop.ini
+*.lnk
+
+# Logs
+*.log
+
+# Compiled binaries
+*.exe
+*.dll
+*.lib
+*.exp
+*.pdb
+*.obj
+*.ilk
+
+# Installer output
+Output/

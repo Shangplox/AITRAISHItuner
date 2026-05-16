@@ -1,0 +1,32 @@
+name: Build Windows
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Windows VS2022
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure CMake (Release)
+        run: cmake --preset windows-vs2022-release
+
+      - name: Build
+        run: cmake --build build/release --config Release --parallel
+
+      - name: Run tests
+        run: ctest --preset windows-vs2022-release --output-on-failure
+
+      - name: Upload VST3 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AITRAISHItuner-VST3-Windows
+          path: build/release/AITRAISHItuner_artefacts/Release/VST3/
+          if-no-files-found: error

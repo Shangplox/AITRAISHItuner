@@ -1,0 +1,31 @@
+{
+    "name": "Heavy Clip",
+    "author": "AITRAISHItuner",
+    "category": "Factory",
+    "description": "Aggressive soft-clip saturation. Heavy harmonic content, tight and punchy.",
+    "version": "0.1.0",
+    "parameters": {
+        "sample-gain": 0.0,
+        "sample-pitch": 0.0,
+        "sample-start": 0.0,
+        "sample-end": 1.0,
+        "sample-reverse": 0,
+        "sample-loop": 0,
+        "sample-oneshot": 1,
+        "sample-fade-in": 0.0,
+        "sample-fade-out": 0.0,
+        "sample-pan": 0.0,
+        "dist-mode": 0,
+        "dist-drive": 0.78,
+        "dist-tone": 0.55,
+        "dist-mix": 1.0,
+        "dist-output": -6.0,
+        "dist-input-gain": 12.0,
+        "dist-oversample": 2,
+        "output-gain": 0.0,
+        "output-pan": 0.0,
+        "analyzer-enabled": 1,
+        "analyzer-fft-size": 2048
+    },
+    "sampleFile": ""
+}

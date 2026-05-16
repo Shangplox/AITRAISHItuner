@@ -1,0 +1,31 @@
+{
+    "name": "808 Crunch",
+    "author": "AITRAISHItuner",
+    "category": "Factory",
+    "description": "Light saturation for 808s. Adds warmth and punch without destroying sub frequencies.",
+    "version": "0.1.0",
+    "parameters": {
+        "sample-gain": 3.0,
+        "sample-pitch": 0.0,
+        "sample-start": 0.0,
+        "sample-end": 1.0,
+        "sample-reverse": 0,
+        "sample-loop": 0,
+        "sample-oneshot": 1,
+        "sample-fade-in": 0.0,
+        "sample-fade-out": 0.0,
+        "sample-pan": 0.0,
+        "dist-mode": 0,
+        "dist-drive": 0.35,
+        "dist-tone": 0.45,
+        "dist-mix": 0.8,
+        "dist-output": -3.0,
+        "dist-input-gain": 6.0,
+        "dist-oversample": 2,
+        "output-gain": 0.0,
+        "output-pan": 0.0,
+        "analyzer-enabled": 1,
+        "analyzer-fft-size": 2048
+    },
+    "sampleFile": ""
+}
