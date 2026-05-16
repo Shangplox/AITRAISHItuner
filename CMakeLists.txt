@@ -53,6 +53,7 @@ target_sources(AITRAISHItuner
         src/UI/DistortionPanel.cpp
         src/UI/OutputPanel.cpp
         src/UI/HeaderBar.cpp
+        src/UI/TransportBar.cpp
 )
 
 # ── Include paths ─────────────────────────────────────────────────────────────

@@ -19,6 +19,7 @@ AITRAISHItunerEditor::AITRAISHItunerEditor(AITRAISHItunerProcessor& p)
     addAndMakeVisible(m_header);
     addAndMakeVisible(m_waveform);
     addAndMakeVisible(m_meter);
+    addAndMakeVisible(m_transport);
     addAndMakeVisible(m_samplePanel);
     addAndMakeVisible(m_distPanel);
     addAndMakeVisible(m_outputPanel);
@@ -31,7 +32,11 @@ AITRAISHItunerEditor::AITRAISHItunerEditor(AITRAISHItunerProcessor& p)
     m_header.onPresetSave = [this] { onPresetSave(); };
     m_header.onFileOpen   = [this](const juce::File& f) { onFileLoaded(f); };
 
-    setSize(820, 520);
+    // Wire transport bar to processor preview.
+    m_transport.onPlay = [this] { m_processor.triggerPreviewNote(); };
+    m_transport.onStop = [this] { m_processor.stopPreviewNote(); };
+
+    setSize(820, 550);
     setResizable(true, true);
     setResizeLimits(640, 400, 1600, 960);
 }
@@ -59,6 +64,11 @@ void AITRAISHItunerEditor::resized()
     m_meter.setBounds(waveformRow.removeFromRight(METER_WIDTH * 2 + MARGIN));
     waveformRow.removeFromRight(MARGIN);
     m_waveform.setBounds(waveformRow);
+
+    area.removeFromTop(MARGIN);
+
+    // Transport bar (Play / Stop).
+    m_transport.setBounds(area.removeFromTop(28));
 
     area.removeFromTop(MARGIN);
 

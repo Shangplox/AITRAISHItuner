@@ -7,6 +7,7 @@
 #include "UI/DistortionPanel.h"
 #include "UI/OutputPanel.h"
 #include "UI/HeaderBar.h"
+#include "UI/TransportBar.h"
 
 class AITRAISHItunerProcessor;
 
@@ -26,6 +27,7 @@ private:
     AIT::HeaderBar          m_header;
     AIT::WaveformDisplay    m_waveform;
     AIT::MeterDisplay       m_meter;
+    AIT::TransportBar       m_transport;
     AIT::SamplePanel        m_samplePanel;
     AIT::DistortionPanel    m_distPanel;
     AIT::OutputPanel        m_outputPanel;

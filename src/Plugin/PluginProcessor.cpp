@@ -60,6 +60,20 @@ void AITRAISHItunerProcessor::processBlock(juce::AudioBuffer<float>& buffer,
 
     if (!m_pSampleGain) return;  // parameters not yet initialised
 
+    // ── Preview note injection (atomic, no allocation) ───────────────────────
+    if (m_previewTrigger.exchange(false, std::memory_order_acq_rel))
+    {
+        // Inject a synthetic note-on at sample position 0.
+        midiMessages.addEvent(juce::MidiMessage::noteOn(1, AIT::SampleEngine::ROOT_MIDI_NOTE, 1.0f), 0);
+        m_previewPlaying.store(true, std::memory_order_release);
+    }
+    if (m_previewStop.exchange(false, std::memory_order_acq_rel))
+    {
+        // Inject a synthetic note-off at sample position 0.
+        midiMessages.addEvent(juce::MidiMessage::noteOff(1, AIT::SampleEngine::ROOT_MIDI_NOTE, 0.0f), 0);
+        m_previewPlaying.store(false, std::memory_order_release);
+    }
+
     // ── Fetch and smooth parameters ──────────────────────────────────────────
     m_gainSmooth.setTargetValue(AIT::dBToLinear(m_pSampleGain->load()));
     m_pitchSmooth.setTargetValue(m_pSamplePitch->load());
@@ -173,6 +187,16 @@ void AITRAISHItunerProcessor::loadSampleFile(const juce::File& file)
 juce::String AITRAISHItunerProcessor::getCurrentSamplePath() const
 {
     return m_currentSamplePath;
+}
+
+void AITRAISHItunerProcessor::triggerPreviewNote()
+{
+    m_previewTrigger.store(true, std::memory_order_release);
+}
+
+void AITRAISHItunerProcessor::stopPreviewNote()
+{
+    m_previewStop.store(true, std::memory_order_release);
 }
 
 // ── Private helpers ───────────────────────────────────────────────────────────

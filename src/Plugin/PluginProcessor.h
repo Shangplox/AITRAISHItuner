@@ -55,6 +55,12 @@ public:
 
     juce::String getCurrentSamplePath() const;
 
+    // Preview / audition: inject a synthetic MIDI note from the UI thread.
+    // Uses atomic flags — no locks, no allocations.
+    void triggerPreviewNote();
+    void stopPreviewNote();
+    bool isPreviewPlaying() const { return m_previewPlaying.load(std::memory_order_acquire); }
+
 private:
     // ── APVTS ──────────────────────────────────────────────────────────────────
     juce::AudioProcessorValueTreeState m_apvts;
@@ -102,6 +108,11 @@ private:
     juce::String         m_currentSamplePath;
 
     int m_reportedLatency{0};
+
+    // Preview note injection — atomic flags checked by processBlock.
+    std::atomic<bool> m_previewTrigger{false};   // UI sets true, processBlock consumes
+    std::atomic<bool> m_previewStop{false};      // UI sets true, processBlock consumes
+    std::atomic<bool> m_previewPlaying{false};   // processBlock sets, UI reads
 
     void updateLatency();
     void cacheParameterPointers();
