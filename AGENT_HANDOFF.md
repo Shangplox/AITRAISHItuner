@@ -14,54 +14,47 @@
 
 ## Last Advance
 
-**Agent:** Claude Sonnet 4.6
+**Agent:** Antigravity (Claude Opus 4.6 Thinking)
 **Date:** 2026-05-16
-**Session summary:** VS2022 installed, full build succeeded, 31/31 tests pass. Blocked on FL Studio scan.
+**Session summary:** Verified build, 31/31 tests pass, git initialized with GitHub remote. Blocked on admin VST3 copy.
 
-### What was completed
-- VS2022 Community installed silently (MSVC 14.44.35227, Windows SDK 10.0.26100)
-- CMake configure succeeded (187s first run, ~10s incremental)
-- **VST3 plugin compiled and linked** → `build\release\AITRAISHItuner_artefacts\Release\VST3\AITRAISHItuner.vst3`
-- **31/31 tests passing** (`ctest --preset windows-vs2022-release`)
-- Fixed 6 compile errors from JUCE 8 API differences (see below)
+### What was completed this session
+- Read all handoff files and key source files
+- Re-verified test suite: **31/31 tests pass** (`ctest --preset windows-vs2022-release`, 0.60s)
+- Confirmed VST3 output exists at `build\release\AITRAISHItuner_artefacts\Release\VST3\AITRAISHItuner.vst3`
+- Confirmed VST3 has NOT been copied to system folder
+- Initialized git repo, created initial commit (`4f12464`), added remote `origin` to `https://github.com/Shangplox/AITRAISHItuner.git`
+- Attempted VST3 copy — **failed: requires admin elevation**
 
-### Bugs fixed this session
-| Bug | Fix |
-|---|---|
-| `using P = AIT::Params` (namespace can't be aliased with `using T=`) | Changed to `namespace P = AIT::Params` in 4 files |
-| `getLatencySamples() const override` — not virtual in JUCE 8 | Removed override; `setLatencySamples()` already called in `updateLatency()` |
-| `AlertWindow::showInputBoxAsync` removed in JUCE 8 | Replaced with `AlertWindow` + `addTextEditor` + `enterModalState` |
-| `FileChooser::browseForFileToOpen()` removed in JUCE 8 | Replaced with `launchAsync`; added `m_fileChooser` member + `onFileOpen` callback |
-| Test `JuceHeader.h` pulled in `juce_audio_plugin_client` | Created `tests/JuceHeader.h` that includes only DSP modules |
-| Non-ASCII chars (`→` `≤`) in test names corrupted by CTest/Windows | Replaced with ASCII equivalents in all 4 affected test names |
+### Commands run
+```
+ctest --preset windows-vs2022-release          # 31/31 pass
+git init                                       # initialized repo
+git add -A; git commit -m "Initial commit..."  # 82 files, 6299 insertions
+git remote add origin https://github.com/Shangplox/AITRAISHItuner.git
+xcopy ... (failed — needs admin PowerShell)
+```
 
 ### Current blocker
-- **VST3 must be copied to `C:\Program Files\Common Files\VST3\AITRAISHItuner\` (requires admin)**
-- Command (run in admin PowerShell):
+- **VST3 must be copied to system folder (requires admin PowerShell)**
+- Command for user to run in **Admin PowerShell**:
   ```
   xcopy /E /I /Y "C:\Project\AITRAISHItuner\build\release\AITRAISHItuner_artefacts\Release\VST3\AITRAISHItuner.vst3" "C:\Program Files\Common Files\VST3\AITRAISHItuner\AITRAISHItuner.vst3\"
   ```
-- Then: rescan VST3 plugins in FL Studio
+- After copy: FL Studio -> Options -> Manage plugins -> Rescan VST3 plugins
+- Git push to origin also pending (user may need to authenticate)
 
 ### Next actions (in order)
-1. Copy VST3 to Program Files (admin required — see command above)
-2. Open FL Studio → Options → Manage plugins → rescan VST3
-3. Verify: plugin appears in browser, scan completes without crash
-4. Load plugin on a Mixer channel or as step sequencer instrument
-5. Verify: plugin editor opens (820×520 window with Header, Waveform, Sample/Dist/Output panels)
-6. Test drag-and-drop of a WAV file onto the waveform display
-7. Trigger a MIDI note → confirm audio output
-8. Run through the full Phase 1 Testing Checklist in CLAUDE.md
+1. User runs xcopy command above in Admin PowerShell
+2. User opens FL Studio -> Options -> Manage plugins -> rescan VST3
+3. User reports whether plugin appears and scan completes without crash
+4. User loads plugin on a channel and verifies editor opens (820x520)
+5. User tests: WAV drag-and-drop, MIDI playback, knob response, distortion, oversampling, state save/load
+6. User runs `git push -u origin master` to push to GitHub
+7. Only after FL Studio verification passes -> proceed to Phase 2
 
-### Key file locations
-- Entry point: [src/Plugin/PluginProcessor.cpp](src/Plugin/PluginProcessor.cpp)
-- DSP chain: [src/DSP/DistortionEngine.cpp](src/DSP/DistortionEngine.cpp), [src/DSP/SampleEngine.cpp](src/DSP/SampleEngine.cpp)
-- UI entry: [src/Plugin/PluginEditor.cpp](src/Plugin/PluginEditor.cpp)
-- All parameters: [src/Plugin/Parameters.h](src/Plugin/Parameters.h)
-- Build presets: [CMakePresets.json](CMakePresets.json)
-- Test config: [tests/CMakeLists.txt](tests/CMakeLists.txt), [tests/JuceHeader.h](tests/JuceHeader.h)
+### Files changed this session
+- `AGENT_HANDOFF.md` — updated Last Advance section
 
 ### Current phase
-**Phase 1 complete pending FL Studio scan.**
-Phase 2 (APVTS state save/load) is structurally implemented in code but not verified in FL Studio yet.
-Do not mark Phase 1 done until the Testing Checklist in CLAUDE.md is fully checked.
+**Phase 1 — blocked on FL Studio scan (admin copy required)**
