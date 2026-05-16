@@ -45,6 +45,10 @@ public:
     // Called from audio thread — handles a single MIDI note-off event.
     void noteOff(int midiNote) noexcept;
 
+    // Unconditionally stops playback. Audio-thread safe.
+    // Used by preview-stop to bypass one-shot note-off suppression.
+    void stopPlayback() noexcept;
+
     // Called from message thread after SampleLoader finishes loading.
     // Thread-safe via atomic double-buffer swap.
     void commitPendingBuffer(juce::AudioBuffer<float>&& newBuffer, double sourceSampleRate);

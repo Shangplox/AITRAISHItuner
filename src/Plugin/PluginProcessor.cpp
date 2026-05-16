@@ -69,8 +69,10 @@ void AITRAISHItunerProcessor::processBlock(juce::AudioBuffer<float>& buffer,
     }
     if (m_previewStop.exchange(false, std::memory_order_acq_rel))
     {
-        // Inject a synthetic note-off at sample position 0.
-        midiMessages.addEvent(juce::MidiMessage::noteOff(1, AIT::SampleEngine::ROOT_MIDI_NOTE, 0.0f), 0);
+        // Use stopPlayback() instead of note-off injection.
+        // Note-off would be filtered out by the one-shot MIDI filter below,
+        // making Stop ineffective in one-shot mode.
+        m_sampleEngine.stopPlayback();
         m_previewPlaying.store(false, std::memory_order_release);
     }
 

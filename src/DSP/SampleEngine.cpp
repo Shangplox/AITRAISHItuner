@@ -66,6 +66,13 @@ void SampleEngine::noteOff(int midiNote) noexcept
     }
 }
 
+void SampleEngine::stopPlayback() noexcept
+{
+    // Unconditional stop — bypasses one-shot note-off suppression.
+    // Safe to call from audio thread only.
+    m_isPlaying = false;
+}
+
 void SampleEngine::commitPendingBuffer(juce::AudioBuffer<float>&& newBuffer,
                                        double sourceSampleRate)
 {
